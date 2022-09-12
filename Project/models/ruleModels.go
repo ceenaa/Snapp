@@ -15,17 +15,26 @@ type Rule struct {
 	AmountValue int
 }
 
-func GetAll(db *gorm.DB) ([]Rule, error) {
-	var rules []Rule
-	err := db.Model(&Rule{}).Preload("Routes").Find(&rules).Error
-	return rules, err
-}
-
 type Route struct {
 	ID          uint
 	RuleID      uint
 	Origin      string
 	Destination string
+}
+
+func GetWithRoute(db *gorm.DB, origin string, destination string) ([]Rule, error) {
+	var routes []Route
+	err := db.Model(&Route{}).Where("(Origin = ? AND Destination = ?) OR (Origin = ? AND Destination = ?) OR (Origin = ? AND Destination = ?)", origin, destination, origin, "", "", destination).Find(&routes).Error
+	var ids []uint
+	for _, i2 := range routes {
+		ids = append(ids, i2.RuleID)
+	}
+	var rules []Rule
+	if len(ids) > 0 {
+		err = db.Find(&rules, ids).Error
+	}
+
+	return rules, err
 }
 
 type Airline struct {
