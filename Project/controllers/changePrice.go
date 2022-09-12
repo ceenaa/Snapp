@@ -20,16 +20,6 @@ func contains(s pq.StringArray, e string) bool {
 	return false
 }
 
-func checkDesAndOrg(iOrigin string, iDestination string, cpOrigin string, cpDestination string) bool {
-	if (iOrigin == cpOrigin && iDestination == cpDestination) ||
-		(iOrigin == "" && iDestination == cpDestination) ||
-		(iOrigin == cpOrigin && iDestination == "") ||
-		(iOrigin == "" && cpDestination == "") {
-		return true
-	}
-	return false
-}
-
 func ChangePrice(c *gin.Context) {
 	// Get data off req body
 
@@ -39,53 +29,31 @@ func ChangePrice(c *gin.Context) {
 		log.Fatal("failed to bind data")
 	}
 
-	res, er := models.GetAll(initializers.DB)
-	if er != nil {
-		log.Fatal("failed to get all rules")
-		return
-	}
-
 	for _, cp := range cps {
 
 		var price = 0
 		var temp = 0
 		var bs = cp.BasePrice
 
+		res, er := models.GetWithRoute(initializers.DB, cp.Origin, cp.Destination)
+		if er != nil {
+			log.Fatal("failed to get all rules")
+			return
+		}
+
 		for _, i2 := range res {
 			if contains(i2.Airlines, cp.Airline) && contains(i2.Agencies, cp.Agency) && contains(i2.Suppliers, cp.Supplier) {
-				if len(i2.Routes) == 0 {
-					if i2.AmountType == "percentage" {
-						temp = bs + (bs * (i2.AmountValue / 100))
-						if temp > price {
-							price = temp
-							cp.RuleId = i2.ID
-						}
-					} else {
-						temp = bs + i2.AmountValue
-						if temp > price {
-							price = temp
-							cp.RuleId = i2.ID
-						}
+				if i2.AmountType == "percentage" {
+					temp = bs + (bs * (i2.AmountValue / 100))
+					if temp > price {
+						price = temp
+						cp.RuleId = i2.ID
 					}
 				} else {
-
-					for _, i3 := range i2.Routes {
-						if checkDesAndOrg(i3.Origin, i3.Destination, cp.Origin, cp.Destination) {
-							if i2.AmountType == "percentage" {
-								temp = bs + (bs * (i2.AmountValue / 100))
-								if temp > price {
-									price = temp
-									cp.RuleId = i2.ID
-								}
-							} else {
-								temp = bs + i2.AmountValue
-								if temp > price {
-									price = temp
-									cp.RuleId = i2.ID
-								}
-							}
-
-						}
+					temp = bs + i2.AmountValue
+					if temp > price {
+						price = temp
+						cp.RuleId = i2.ID
 					}
 				}
 			}
