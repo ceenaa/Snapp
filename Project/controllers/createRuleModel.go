@@ -24,21 +24,20 @@ func createRuleError(c *gin.Context, err error) {
 func RulesCreate(c *gin.Context) {
 
 	// GET data off req body
-
-	var rl models.Rule
-	err := c.Bind(&rl)
+	var rls []models.Rule
+	err := c.Bind(&rls)
 	if err != nil {
 		log.Fatal("failed to bind data")
 		return
 	}
+	for _, rl := range rls {
+		result := initializers.DB.Create(&rl)
 
-	result := initializers.DB.Create(&rl)
-
-	if result.Error != nil {
-		createRuleError(c, result.Error)
-		return
-	} else {
-		createRuleResponse(c)
+		if result.Error != nil {
+			createRuleError(c, result.Error)
+			return
+		}
 	}
 
+	createRuleResponse(c)
 }

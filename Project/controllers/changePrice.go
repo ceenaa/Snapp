@@ -32,65 +32,72 @@ func checkDesAndOrg(iOrigin string, iDestination string, cpOrigin string, cpDest
 
 func ChangePrice(c *gin.Context) {
 	// Get data off req body
-	var cp models.ChangePrice
 
-	err := c.Bind(&cp)
+	var cps []models.ChangePrice
+	err := c.Bind(&cps)
 	if err != nil {
 		log.Fatal("failed to bind data")
 	}
+
 	res, er := models.GetAll(initializers.DB)
 	if er != nil {
 		log.Fatal("failed to get all rules")
+		return
 	}
 
-	var price = 0
-	var temp = 0
-	var bs = cp.BasePrice
+	for _, cp := range cps {
 
-	for _, i2 := range res {
-		if contains(i2.Airlines, cp.Airline) && contains(i2.Agencies, cp.Agency) && contains(i2.Suppliers, cp.Supplier) {
-			if len(i2.Routes) == 0 {
-				if i2.AmountType == "percentage" {
-					temp = bs + (bs * (i2.AmountValue / 100))
-					if temp > price {
-						price = temp
-						cp.RuleId = i2.ID
+		var price = 0
+		var temp = 0
+		var bs = cp.BasePrice
+
+		for _, i2 := range res {
+			if contains(i2.Airlines, cp.Airline) && contains(i2.Agencies, cp.Agency) && contains(i2.Suppliers, cp.Supplier) {
+				if len(i2.Routes) == 0 {
+					if i2.AmountType == "percentage" {
+						temp = bs + (bs * (i2.AmountValue / 100))
+						if temp > price {
+							price = temp
+							cp.RuleId = i2.ID
+						}
+					} else {
+						temp = bs + i2.AmountValue
+						if temp > price {
+							price = temp
+							cp.RuleId = i2.ID
+						}
 					}
 				} else {
-					temp = bs + i2.AmountValue
-					if temp > price {
-						price = temp
-						cp.RuleId = i2.ID
-					}
-				}
-			} else {
 
-				for _, i3 := range i2.Routes {
-					if checkDesAndOrg(i3.Origin, i3.Destination, cp.Origin, cp.Destination) {
-						if i2.AmountType == "percentage" {
-							temp = bs + (bs * (i2.AmountValue / 100))
-							if temp > price {
-								price = temp
-								cp.RuleId = i2.ID
+					for _, i3 := range i2.Routes {
+						if checkDesAndOrg(i3.Origin, i3.Destination, cp.Origin, cp.Destination) {
+							if i2.AmountType == "percentage" {
+								temp = bs + (bs * (i2.AmountValue / 100))
+								if temp > price {
+									price = temp
+									cp.RuleId = i2.ID
+								}
+							} else {
+								temp = bs + i2.AmountValue
+								if temp > price {
+									price = temp
+									cp.RuleId = i2.ID
+								}
 							}
-						} else {
-							temp = bs + i2.AmountValue
-							if temp > price {
-								price = temp
-								cp.RuleId = i2.ID
-							}
+
 						}
-
 					}
 				}
 			}
 		}
+		if price != 0 {
+			cp.Markup = price - cp.BasePrice
+			cp.PayablePrice = price
+		} else {
+			cp.PayablePrice = cp.BasePrice
+		}
+		c.JSON(200, cp)
+
 	}
-	if price != 0 {
-		cp.Markup = price - cp.BasePrice
-		cp.PayablePrice = price
-	} else {
-		cp.PayablePrice = cp.BasePrice
-	}
-	c.JSON(200, cp)
+
 }
