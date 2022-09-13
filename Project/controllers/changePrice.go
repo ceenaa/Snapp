@@ -23,13 +23,38 @@ func contains(s pq.StringArray, e string) bool {
 
 func IdsToCheck(route1 string, route2 string, route3 string, route4 string) []string {
 	// appending must be better
+	var ids []string
+
+	m := make(map[string]bool)
+
 	ids1, err := initializers.RDB.LRange(initializers.Ctx, route1, 0, -1).Result()
+	for _, i := range ids1 {
+		if !m[i] {
+			ids = append(ids, i)
+			m[i] = true
+		}
+	}
 	ids2, err := initializers.RDB.LRange(initializers.Ctx, route2, 0, -1).Result()
-	ids := append(ids1, ids2...)
+	for _, i := range ids2 {
+		if !m[i] {
+			ids = append(ids, i)
+			m[i] = true
+		}
+	}
 	ids3, err := initializers.RDB.LRange(initializers.Ctx, route3, 0, -1).Result()
-	ids = append(ids, ids3...)
+	for _, i := range ids3 {
+		if !m[i] {
+			ids = append(ids, i)
+			m[i] = true
+		}
+	}
 	ids4, err := initializers.RDB.LRange(initializers.Ctx, route4, 0, -1).Result()
-	ids = append(ids, ids4...)
+	for _, i := range ids4 {
+		if !m[i] {
+			ids = append(ids, i)
+			m[i] = true
+		}
+	}
 
 	if err != nil {
 		log.Fatal("failed to get all rule ids")
