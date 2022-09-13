@@ -8,6 +8,9 @@ import (
 
 func init() {
 	initializers.ConnectToDatabase()
+	initializers.RedisConnect()
+	initializers.LoadRules()
+	initializers.LoadRoutes()
 }
 func main() {
 	r := gin.Default()

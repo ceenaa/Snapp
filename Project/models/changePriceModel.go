@@ -7,7 +7,7 @@ type ChangePrice struct {
 	Airline      string
 	Agency       string
 	Supplier     string
-	BasePrice    int
-	Markup       int
-	PayablePrice int
+	BasePrice    float64
+	Markup       float64
+	PayablePrice float64
 }
