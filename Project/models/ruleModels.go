@@ -6,20 +6,20 @@ import (
 )
 
 type Rule struct {
-	ID          uint
-	Routes      []Route
-	Airlines    pq.StringArray `gorm:"type:varchar(50)[]"`
-	Agencies    pq.StringArray `gorm:"type:varchar(50)[]"`
-	Suppliers   pq.StringArray `gorm:"type:varchar(50)[]"`
-	AmountType  string
-	AmountValue int
+	ID          uint           `json:"id"`
+	Routes      []Route        `json:"routes"`
+	Airlines    pq.StringArray `gorm:"type:varchar(50)[]" json:"airlines"`
+	Agencies    pq.StringArray `gorm:"type:varchar(50)[]" json:"agencies"`
+	Suppliers   pq.StringArray `gorm:"type:varchar(50)[]" json:"suppliers"`
+	AmountType  string         `json:"amountType"`
+	AmountValue int            `json:"amountValue"`
 }
 
 type Route struct {
-	ID          uint
-	RuleID      uint
-	Origin      string
-	Destination string
+	ID          uint   `json:"id"`
+	RuleID      uint   `json:"ruleId"`
+	Origin      string `json:"origin"`
+	Destination string `json:"destination"`
 }
 
 func GetWithRoute(db *gorm.DB, origin string, destination string) ([]Rule, error) {

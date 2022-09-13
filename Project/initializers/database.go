@@ -1,6 +1,8 @@
 package initializers
 
 import (
+	"context"
+	"github.com/go-redis/redis/v9"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
@@ -15,4 +17,15 @@ func ConnectToDatabase() {
 	if err != nil {
 		log.Fatal("failed to connect database")
 	}
+}
+
+var RDB *redis.Client
+var Ctx = context.Background()
+
+func RedisConnect() {
+	RDB = redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
 }
