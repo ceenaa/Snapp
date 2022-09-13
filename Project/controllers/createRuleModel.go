@@ -45,7 +45,13 @@ func RulesCreate(c *gin.Context) {
 	}
 
 	for _, rl := range rls {
-		
+		if rl.Routes == nil {
+			newRoute := models.Route{
+				Origin:      "",
+				Destination: "",
+			}
+			rl.Routes = append(rl.Routes, newRoute)
+		}
 		result := initializers.DB.Create(&rl)
 		AddRuleToRedis(rl)
 		AddRouteToRedis(rl)
