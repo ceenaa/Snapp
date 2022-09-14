@@ -3,6 +3,7 @@ package controllers
 import (
 	"Project/initializers"
 	"Project/models"
+	"Project/validators"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -17,7 +18,7 @@ func createRuleResponse(c *gin.Context) {
 
 func createRuleError(c *gin.Context, err error) {
 	c.JSON(500, gin.H{
-		"status":  "FAiled",
+		"status":  "Failed",
 		"message": err.Error(),
 	})
 }
@@ -45,6 +46,18 @@ func RulesCreate(c *gin.Context) {
 	}
 
 	for _, rl := range rls {
+
+		err = validators.CheckDuplicateRule(rl)
+		if err != nil {
+			createRuleError(c, err)
+			continue
+		}
+
+		err = validators.ValidateRule(rl)
+		if err != nil {
+			createRuleError(c, err)
+			continue
+		}
 		if rl.Routes == nil {
 			newRoute := models.Route{
 				Origin:      "",
@@ -52,14 +65,16 @@ func RulesCreate(c *gin.Context) {
 			}
 			rl.Routes = append(rl.Routes, newRoute)
 		}
+
 		result := initializers.DB.Create(&rl)
-		AddRuleToRedis(rl)
-		AddRouteToRedis(rl)
 
 		if result.Error != nil {
 			createRuleError(c, result.Error)
 			return
 		}
+		AddRuleToRedis(rl)
+		AddRouteToRedis(rl)
+
 	}
 
 	createRuleResponse(c)

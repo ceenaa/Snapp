@@ -3,6 +3,7 @@ package controllers
 import (
 	"Project/initializers"
 	"Project/models"
+	"Project/validators"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
@@ -75,6 +76,11 @@ func ChangePrice(c *gin.Context) {
 	}
 
 	for _, cp := range cps {
+		err = validators.ValidateChangePrice(cp)
+		if err != nil {
+			createRuleError(c, err)
+			continue
+		}
 
 		var price = 0.0
 		var temp = 0.0
