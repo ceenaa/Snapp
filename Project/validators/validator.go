@@ -1,6 +1,8 @@
 package validators
 
 import (
+	"Project/coding"
+	"Project/convert"
 	"Project/initializers"
 	"Project/models"
 	"errors"
@@ -63,16 +65,9 @@ func CheckRoutes(routes []models.Route) error {
 }
 
 func CheckDuplicateRule(rule models.Rule) error {
-	var hRule models.HashRule
-	var hRoutes []models.HashRoute
-	for _, i2 := range rule.Routes {
-		hRoutes = append(hRoutes, models.HashRoute{Origin: i2.Origin, Destination: i2.Destination})
-	}
-	hRule.Airlines = rule.Airlines
-	hRule.Agencies = rule.Agencies
-	hRule.Suppliers = rule.Suppliers
+	var rawRule = convert.RuleConvert(rule)
 
-	t := initializers.RDB.SIsMember(initializers.Ctx, "HashRules", initializers.Hash(hRule)).Val()
+	t := initializers.RDB.SIsMember(initializers.Ctx, "HashRules", coding.HashRaw(rawRule)).Val()
 	if t == true {
 		return errors.New("duplicate rule")
 	}

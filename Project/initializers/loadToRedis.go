@@ -1,27 +1,32 @@
 package initializers
 
 import (
+	"Project/coding"
+	"Project/convert"
 	"Project/models"
-	"bytes"
-	"encoding/gob"
-	"encoding/json"
 )
+
+func LoadRule(rule models.Rule) {
+	ruleHash := coding.Hash(rule)
+	RDB.HSet(Ctx, "rules", rule.ID, ruleHash)
+	rawRule := convert.RuleConvert(rule)
+	RDB.SAdd(Ctx, "HashRules", coding.HashRaw(rawRule))
+}
+
+func LoadRoute(rule models.Rule) {
+	for _, i2 := range rule.Routes {
+		t := i2.Origin + "-" + i2.Destination
+		RDB.LPush(Ctx, t, i2.RuleID)
+	}
+}
 
 func LoadRules() {
 	var rules []models.Rule
 	DB.Find(&rules)
 	for _, rule := range rules {
-		var hRule models.HashRule
-		var hRoutes []models.HashRoute
-		for _, i2 := range rule.Routes {
-			hRoutes = append(hRoutes, models.HashRoute{Origin: i2.Origin, Destination: i2.Destination})
-		}
-		hRule.Airlines = rule.Airlines
-		hRule.Agencies = rule.Agencies
-		hRule.Suppliers = rule.Suppliers
-		RDB.SAdd(Ctx, "HashRules", Hash(hRule))
-		rl, _ := json.Marshal(rule)
-		RDB.HSet(Ctx, "rules", rule.ID, rl)
+		rawRule := convert.RuleConvert(rule)
+		RDB.SAdd(Ctx, "HashRules", coding.HashRaw(rawRule))
+		RDB.HSet(Ctx, "rules", rule.ID, coding.Hash(rule))
 	}
 }
 
@@ -64,10 +69,4 @@ func LoadAirlines() {
 	for _, i2 := range airlines {
 		RDB.SAdd(Ctx, "airlines", i2.Name)
 	}
-}
-
-func Hash(rule models.HashRule) []byte {
-	var b bytes.Buffer
-	gob.NewEncoder(&b).Encode(rule)
-	return b.Bytes()
 }

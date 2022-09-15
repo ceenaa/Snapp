@@ -1,10 +1,10 @@
 package controllers
 
 import (
+	"Project/coding"
 	"Project/initializers"
 	"Project/models"
 	"Project/validators"
-	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 	"log"
@@ -96,9 +96,7 @@ func ChangePrice(c *gin.Context) {
 
 		for _, i2 := range ids {
 			ruleJson := initializers.RDB.HGet(initializers.Ctx, "rules", i2).Val()
-
-			var rule models.Rule
-			err := json.Unmarshal([]byte(ruleJson), &rule)
+			var rule = coding.UnHash(ruleJson)
 			if err != nil {
 				log.Fatal("failed to unmarshal rule")
 				return

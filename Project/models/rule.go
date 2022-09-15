@@ -14,23 +14,23 @@ type Rule struct {
 	AmountValue int            `json:"amountValue"`
 }
 
-type HashRoute struct {
+type Route struct {
+	ID          uint   `json:"id"`
+	RuleID      uint   `json:"ruleId"`
 	Origin      string `json:"origin"`
 	Destination string `json:"destination"`
 }
 
-type HashRule struct {
-	Routes      []HashRoute
-	Airlines    pq.StringArray `gorm:"type:varchar(50)[]" json:"airlines"`
-	Agencies    pq.StringArray `gorm:"type:varchar(50)[]" json:"agencies"`
-	Suppliers   pq.StringArray `gorm:"type:varchar(50)[]" json:"suppliers"`
+type RawRule struct {
+	Routes      []RawRoute
+	Airlines    pq.StringArray `json:"airlines"`
+	Agencies    pq.StringArray `json:"agencies"`
+	Suppliers   pq.StringArray `json:"suppliers"`
 	AmountType  string         `json:"amountType"`
 	AmountValue int            `json:"amountValue"`
 }
 
-type Route struct {
-	ID          uint   `json:"id"`
-	RuleID      uint   `json:"ruleId"`
+type RawRoute struct {
 	Origin      string `json:"origin"`
 	Destination string `json:"destination"`
 }

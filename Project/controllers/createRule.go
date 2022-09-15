@@ -4,7 +4,6 @@ import (
 	"Project/initializers"
 	"Project/models"
 	"Project/validators"
-	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"log"
 )
@@ -17,22 +16,10 @@ func createRuleResponse(c *gin.Context) {
 }
 
 func createRuleError(c *gin.Context, err error) {
-	c.JSON(500, gin.H{
+	c.JSON(200, gin.H{
 		"status":  "Failed",
 		"message": err.Error(),
 	})
-}
-
-func AddRuleToRedis(rule models.Rule) {
-	rl, _ := json.Marshal(rule)
-	initializers.RDB.HSet(initializers.Ctx, "rules", rule.ID, string(rl))
-}
-
-func AddRouteToRedis(rule models.Rule) {
-	for _, i2 := range rule.Routes {
-		t := i2.Origin + "-" + i2.Destination
-		initializers.RDB.LPush(initializers.Ctx, t, i2.RuleID)
-	}
 }
 
 func RulesCreate(c *gin.Context) {
@@ -72,10 +59,11 @@ func RulesCreate(c *gin.Context) {
 			createRuleError(c, result.Error)
 			return
 		}
-		AddRuleToRedis(rl)
-		AddRouteToRedis(rl)
+		initializers.LoadRule(rl)
+		initializers.LoadRoute(rl)
+
+		createRuleResponse(c)
 
 	}
 
-	createRuleResponse(c)
 }
