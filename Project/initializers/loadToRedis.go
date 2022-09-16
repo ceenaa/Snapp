@@ -4,13 +4,27 @@ import (
 	"Project/coding"
 	"Project/convert"
 	"Project/models"
+	"strconv"
 )
 
 func LoadRule(rule models.Rule) {
 	ruleHash := coding.Hash(rule)
 	RDB.HSet(Ctx, "rules", rule.ID, ruleHash)
+
 	rawRule := convert.RuleConvert(rule)
 	RDB.SAdd(Ctx, "HashRules", coding.HashRaw(rawRule))
+
+	id := strconv.Itoa(int(rule.ID))
+	var airlines []string
+	airlines = append(airlines, rule.Airlines...)
+	var agencies []string
+	agencies = append(agencies, rule.Agencies...)
+	var suppliers []string
+	suppliers = append(suppliers, rule.Suppliers...)
+
+	RDB.SAdd(Ctx, "agencies"+id, agencies)
+	RDB.SAdd(Ctx, "airlines"+id, airlines)
+	RDB.SAdd(Ctx, "suppliers"+id, suppliers)
 }
 
 func LoadRoute(rule models.Rule) {
@@ -24,9 +38,7 @@ func LoadRules() {
 	var rules []models.Rule
 	DB.Find(&rules)
 	for _, rule := range rules {
-		rawRule := convert.RuleConvert(rule)
-		RDB.SAdd(Ctx, "HashRules", coding.HashRaw(rawRule))
-		RDB.HSet(Ctx, "rules", rule.ID, coding.Hash(rule))
+		LoadRule(rule)
 	}
 }
 

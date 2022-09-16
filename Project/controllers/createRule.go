@@ -24,43 +24,43 @@ func createRuleError(c *gin.Context, err error) {
 
 func RulesCreate(c *gin.Context) {
 
-	var rls []models.Rule
-	err := c.Bind(&rls)
+	var rules []models.Rule
+	err := c.Bind(&rules)
 
 	if err != nil {
-		log.Fatal("failed to bind data")
+		log.Println("failed to bind data")
 		return
 	}
 
-	for _, rl := range rls {
+	for _, rule := range rules {
 
-		err = validators.CheckDuplicateRule(rl)
+		err = validators.CheckDuplicateRule(rule)
 		if err != nil {
 			createRuleError(c, err)
 			continue
 		}
 
-		err = validators.ValidateRule(rl)
+		err = validators.ValidateRule(rule)
 		if err != nil {
 			createRuleError(c, err)
 			continue
 		}
-		if rl.Routes == nil {
+		if rule.Routes == nil {
 			newRoute := models.Route{
 				Origin:      "",
 				Destination: "",
 			}
-			rl.Routes = append(rl.Routes, newRoute)
+			rule.Routes = append(rule.Routes, newRoute)
 		}
 
-		result := initializers.DB.Create(&rl)
+		result := initializers.DB.Create(&rule)
 
 		if result.Error != nil {
 			createRuleError(c, result.Error)
 			return
 		}
-		initializers.LoadRule(rl)
-		initializers.LoadRoute(rl)
+		initializers.LoadRule(rule)
+		initializers.LoadRoute(rule)
 
 		createRuleResponse(c)
 

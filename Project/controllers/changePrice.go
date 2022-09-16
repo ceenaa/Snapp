@@ -6,125 +6,125 @@ import (
 	"Project/models"
 	"Project/validators"
 	"github.com/gin-gonic/gin"
-	"github.com/lib/pq"
 	"log"
+	"strconv"
 )
 
-func contains(s pq.StringArray, e string) bool {
-	if s == nil || len(s) == 0 || e == "" {
-		return true
-	}
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
-}
+func IdsToCheck(origin string, destination string) []string {
 
-func IdsToCheck(route1 string, route2 string, route3 string, route4 string) []string {
-	// appending must be better
+	route1 := origin + "-" + destination
+	route2 := origin + "-"
+	route3 := "-" + destination
+	route4 := "-"
+
 	var ids []string
 
-	m := make(map[string]bool)
-
 	ids1, err := initializers.RDB.LRange(initializers.Ctx, route1, 0, -1).Result()
-	for _, i := range ids1 {
-		if !m[i] {
-			ids = append(ids, i)
-			m[i] = true
-		}
-	}
 	ids2, err := initializers.RDB.LRange(initializers.Ctx, route2, 0, -1).Result()
-	for _, i := range ids2 {
-		if !m[i] {
-			ids = append(ids, i)
-			m[i] = true
-		}
-	}
 	ids3, err := initializers.RDB.LRange(initializers.Ctx, route3, 0, -1).Result()
-	for _, i := range ids3 {
-		if !m[i] {
-			ids = append(ids, i)
-			m[i] = true
-		}
-	}
 	ids4, err := initializers.RDB.LRange(initializers.Ctx, route4, 0, -1).Result()
-	for _, i := range ids4 {
-		if !m[i] {
-			ids = append(ids, i)
-			m[i] = true
-		}
-	}
 
 	if err != nil {
-		log.Fatal("failed to get all rule ids")
+		log.Println("failed to get all rule ids")
 		return nil
 	}
+
+	initializers.RDB.SAdd(initializers.Ctx, "ids", ids1)
+	initializers.RDB.SAdd(initializers.Ctx, "ids", ids2)
+	initializers.RDB.SAdd(initializers.Ctx, "ids", ids3)
+	initializers.RDB.SAdd(initializers.Ctx, "ids", ids4)
+
+	ids, err = initializers.RDB.SMembers(initializers.Ctx, "ids").Result()
+	if err != nil {
+		log.Println("failed to get all rule ids")
+		return nil
+	}
+
+	initializers.RDB.Del(initializers.Ctx, "ids")
 
 	return ids
 }
 
-func ChangePrice(c *gin.Context) {
+func containAgency(checkID string, agency string) bool {
+	containAgency := initializers.RDB.SIsMember(initializers.Ctx, "agencies"+checkID, agency).Val()
+	if !containAgency {
+		if initializers.RDB.SCard(initializers.Ctx, "agencies"+checkID).Val() == 0 {
+			containAgency = true
+		}
+	}
+	return containAgency
+}
+
+func containSupplier(checkID string, supplier string) bool {
+	containSupplier := initializers.RDB.SIsMember(initializers.Ctx, "suppliers"+checkID, supplier).Val()
+	if !containSupplier {
+		if initializers.RDB.SCard(initializers.Ctx, "suppliers"+checkID).Val() == 0 {
+			containSupplier = true
+		}
+	}
+	return containSupplier
+}
+
+func containAirline(checkID string, airline string) bool {
+	containAirline := initializers.RDB.SIsMember(initializers.Ctx, "airlines"+checkID, airline).Val()
+	if !containAirline {
+		if initializers.RDB.SCard(initializers.Ctx, "airlines"+checkID).Val() == 0 {
+			containAirline = true
+		}
+	}
+	return containAirline
+}
+
+func ChangePrices(c *gin.Context) {
 	// Get data off req body
 
-	var cps []models.ChangePrice
-	err := c.Bind(&cps)
+	var changePrices []models.ChangePrice
+	err := c.Bind(&changePrices)
 	if err != nil {
-		log.Fatal("failed to bind data")
+		log.Println("failed to bind data")
 		return
 	}
 
-	for _, cp := range cps {
-		err = validators.ValidateChangePrice(cp)
+	for _, changePrice := range changePrices {
+		err = validators.ValidateChangePrice(changePrice)
 		if err != nil {
 			createRuleError(c, err)
 			continue
 		}
-
 		var price = 0.0
 		var temp = 0.0
-		var bs = cp.BasePrice
+		var bs = changePrice.BasePrice
+		checkIDs := IdsToCheck(changePrice.Origin, changePrice.Destination)
 
-		route1 := cp.Origin + "-" + cp.Destination
-		route2 := cp.Origin + "-"
-		route3 := "-" + cp.Destination
-		route4 := "-"
-
-		// appending must be better
-		ids := IdsToCheck(route1, route2, route3, route4)
-
-		for _, i2 := range ids {
-			ruleJson := initializers.RDB.HGet(initializers.Ctx, "rules", i2).Val()
+		for _, id := range checkIDs {
+			ruleJson := initializers.RDB.HGet(initializers.Ctx, "rules", id).Val()
 			var rule = coding.UnHash(ruleJson)
-			if err != nil {
-				log.Fatal("failed to unmarshal rule")
-				return
-			}
 
-			if contains(rule.Airlines, cp.Airline) && contains(rule.Agencies, cp.Agency) && contains(rule.Suppliers, cp.Supplier) {
+			id := strconv.Itoa(int(rule.ID))
+			if containAgency(id, changePrice.Agency) && containSupplier(id, changePrice.Supplier) && containAirline(id, changePrice.Airline) {
 				if rule.AmountType == "PERCENTAGE" {
 					temp = bs + (bs * (float64(rule.AmountValue) / 100))
 					if temp > price {
 						price = temp
-						cp.RuleId = rule.ID
+						changePrice.RuleId = rule.ID
 					}
 				} else {
 					temp = bs + float64(rule.AmountValue)
 					if temp > price {
 						price = temp
-						cp.RuleId = rule.ID
+						changePrice.RuleId = rule.ID
 					}
 				}
 			}
 		}
+
 		if price != 0 {
-			cp.Markup = price - cp.BasePrice
-			cp.PayablePrice = price
+			changePrice.Markup = price - changePrice.BasePrice
+			changePrice.PayablePrice = price
 		} else {
-			cp.PayablePrice = cp.BasePrice
+			changePrice.PayablePrice = changePrice.BasePrice
 		}
-		c.JSON(200, cp)
+		c.JSON(200, changePrice)
 
 	}
 
