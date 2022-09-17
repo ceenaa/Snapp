@@ -1,0 +1,39 @@
+[
+  {
+    "routes": [
+      {
+        "origin": "THR",
+        "destination": "MHD"
+      },
+      {
+        "origin": null,
+        "destination": "SYZ"
+      }
+    ],
+    "airlines": [
+      "zv",
+      "i3"
+    ],
+    "agencies": [
+      "MOGHIM_TEST_AGENCY",
+      "SHADI_AVARAN_SAFAR"
+    ],
+    "suppliers": [
+      "faranegar",
+      "aseman"
+    ],
+    "amountType": "FIXED",
+    "amountValue": 100000
+  },
+  {
+    "routes": null,
+    "airlines": [
+      "ep"
+    ],
+    "agencies": null,
+    "suppliers": ["zagros"
+    ],
+    "amountType": "PERCENTAGE",
+    "amountValue": 2
+  }
+]

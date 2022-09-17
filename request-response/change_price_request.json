@@ -1,0 +1,32 @@
+[
+	  {
+    "origin": "THR",
+    "destination": "IFN",
+    "airline": "zv",
+    "agency": "ELVA_SEIR",
+    "supplier": "aseman",
+    "basePrice": 15000000,
+    "markup": 0,
+    "payablePrice": 0
+  },
+  {
+    "origin": "SYZ",
+    "destination": "MHD",
+    "airline": "i3",
+    "agency": "TIROOZH_PARVAZ",
+    "supplier": "ataa",
+    "basePrice": 25000000,
+    "markup": 0,
+    "payablePrice": 0
+  },
+  {
+    "origin": "SYZ",
+    "destination": "KIH",
+    "airline": "zv",
+    "agency": "FARJAM_PARVAZ",
+    "supplier": "faranegar",
+    "basePrice": 13500000,
+    "markup": 0,
+    "payablePrice": 0
+  }
+]
