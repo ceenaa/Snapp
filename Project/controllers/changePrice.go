@@ -81,7 +81,7 @@ func ChangePrices(c *gin.Context) {
 	var changePrices []models.ChangePrice
 	err := c.Bind(&changePrices)
 	if err != nil {
-		log.Println("failed to bind data")
+		createRuleError(c, err)
 		return
 	}
 

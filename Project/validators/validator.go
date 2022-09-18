@@ -26,7 +26,7 @@ func CheckSupplier(supplier string) error {
 	if initializers.RDB.SIsMember(initializers.Ctx, "suppliers", supplier).Val() {
 		return nil
 	}
-	return errors.New("invalid city " + supplier)
+	return errors.New("invalid supplier " + supplier)
 }
 
 func CheckAirline(airline string) error {
@@ -46,7 +46,7 @@ func CheckAgency(agency string) error {
 	if initializers.RDB.SIsMember(initializers.Ctx, "agencies", agency).Val() {
 		return nil
 	}
-	return errors.New("invalid agency" + agency)
+	return errors.New("invalid agency " + agency)
 }
 
 func CheckRoutes(routes []models.Route) error {

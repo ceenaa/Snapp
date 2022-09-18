@@ -5,7 +5,6 @@ import (
 	"Project/models"
 	"Project/validators"
 	"github.com/gin-gonic/gin"
-	"log"
 )
 
 func createRuleResponse(c *gin.Context) {
@@ -28,7 +27,7 @@ func RulesCreate(c *gin.Context) {
 	err := c.Bind(&rules)
 
 	if err != nil {
-		log.Println("failed to bind data")
+		createRuleError(c, err)
 		return
 	}
 
