@@ -11,8 +11,8 @@
       }
     ],
     "airlines": [
-      "zv",
-      "i3"
+      "ZV",
+      "I3"
     ],
     "agencies": [
       "MOGHIM_TEST_AGENCY",
@@ -28,12 +28,31 @@
   {
     "routes": null,
     "airlines": [
-      "ep"
+      "EP"
     ],
     "agencies": null,
     "suppliers": ["zagros"
     ],
     "amountType": "PERCENTAGE",
-    "amountValue": 2
+    "amountValue": 10
+  },
+  {
+        "routes": [
+      {
+        "origin": "THR",
+        "destination": "MHD"
+      },
+      {
+        "origin": "BBL",
+        "destination": null
+      }
+    ],
+    "airlines": [
+      "EP", "AK", "ZZ"
+    ],
+    "agencies": null,
+    "suppliers": ["zagros", "saha", "caspian"],
+    "amountType": "PERCENTAGE",
+    "amountValue": 20
   }
 ]

@@ -1,35 +1,51 @@
-[
-  {
-    "ruleId": 647,
-    "origin": "THR",
-    "destination": "IFN",
-    "airline": "zv",
-    "agency": "ELVA_SEIR",
-    "supplier": "aseman",
-    "basePrice": 15000000,
-    "markup": 100,
-    "payablePrice": 15000100
-  },
-  {
-    "ruleId": 563,
-    "origin": "SYZ",
-    "destination": "MHD",
-    "airline": "i3",
-    "agency": "TIROOZH_PARVAZ",
-    "supplier": "ataa",
-    "basePrice": 25000000,
-    "markup": 200,
-    "payablePrice": 25000200
-  },
-  {
-    "ruleId": null,
-    "origin": "SYZ",
-    "destination": "KIH",
-    "airline": "zv",
-    "agency": "FARJAM_PARVAZ",
-    "supplier": "faranegar",
-    "basePrice": 13500000,
-    "markup": 0,
-    "payablePrice": 13500000
-  }
-]
+{
+    "RuleId": 1,
+    "Origin": "THR",
+    "Destination": "MHD",
+    "Airline": "ZV",
+    "Agency": "SHADI_AVARAN_SAFAR",
+    "Supplier": "faranegar",
+    "BasePrice": 1000000,
+    "Markup": 100000,
+    "PayablePrice": 1100000
+}{
+    "RuleId": 1,
+    "Origin": "THR",
+    "Destination": "MHD",
+    "Airline": "ZV",
+    "Agency": "MOGHIM_TEST_AGENCY",
+    "Supplier": "aseman",
+    "BasePrice": 1000000,
+    "Markup": 100000,
+    "PayablePrice": 1100000
+}{
+    "RuleId": 2,
+    "Origin": "PGU",
+    "Destination": "GSM",
+    "Airline": "EP",
+    "Agency": "MOGHIM_TEST_AGENCY",
+    "Supplier": "zagros",
+    "BasePrice": 3000000,
+    "Markup": 300000,
+    "PayablePrice": 3300000
+}{
+    "RuleId": 0,
+    "Origin": "PGU",
+    "Destination": "GSM",
+    "Airline": "AK",
+    "Agency": "ARIOBAL_KISH",
+    "Supplier": "saha",
+    "BasePrice": 1000000,
+    "Markup": 0,
+    "PayablePrice": 1000000
+}{
+    "RuleId": 3,
+    "Origin": "BBL",
+    "Destination": "MHD",
+    "Airline": "EP",
+    "Agency": "TASHRIFAT_PARVAZ",
+    "Supplier": "zagros",
+    "BasePrice": 100000,
+    "Markup": 20000,
+    "PayablePrice": 120000
+}
